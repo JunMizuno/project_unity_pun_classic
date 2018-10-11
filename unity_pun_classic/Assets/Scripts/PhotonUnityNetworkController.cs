@@ -109,4 +109,26 @@ public class PhotonUnityNetworkController : MonoBehaviour {
         // ランダム作成の場合は以下
         //PhotonNetwork.JoinRandomRoom();
     }
+
+    /// <summary>
+    /// 以下、PunRPCの実装例
+    /// </summary>
+    /// <param name="_message">Message.</param>
+    [PunRPC]
+    public void TestRPC(string _message) {
+        Debug.Log("PunRPCのテスト:" + _message);
+    }
+
+    public void TestFunc(PhotonView _photonView) {
+        if (!_photonView) {
+            return;
+        }
+
+        // PhotonTargets.All 全員
+        // PhotonTargets.Other 自分以外に対して
+        // PhotonTargets.MasterClient ルーム管理者に対して
+        if (_photonView.isMine) {
+            _photonView.RPC("TestRPC", PhotonTargets.All, "テストメッセージ");
+        }
+    }
 }
