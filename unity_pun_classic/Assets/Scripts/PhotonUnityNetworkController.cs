@@ -19,7 +19,7 @@ public class PhotonUnityNetworkController : MonoBehaviour {
     /// </summary>
     void OnJoinedLobby() {
         Debug.Log("ロビーに入りました");
-        PhotonNetwork.JoinRandomRoom();
+        CreateToJoinRoom(ROOM_NAME);
     }
 
     /// <summary>
@@ -27,17 +27,86 @@ public class PhotonUnityNetworkController : MonoBehaviour {
     /// </summary>
     void OnJoinedRoom() {
         Debug.Log("ルームに入りました");
+
+        // ルーム名
+        Debug.Log(PhotonNetwork.room.Name);
+        // 現在人数
+        Debug.Log(PhotonNetwork.room.PlayerCount);
+        // 最大人数
+        Debug.Log(PhotonNetwork.room.MaxPlayers);
+        // 開放フラグ
+        Debug.Log(PhotonNetwork.room.IsOpen);
+        // 可視フラグ
+        Debug.Log(PhotonNetwork.room.IsVisible);
+        // カスタムプロパティ
+        Debug.Log(PhotonNetwork.room.CustomProperties);
     }
 
     /// <summary>
     /// ルーム入室失敗時
     /// </summary>
-    void OnPhotonRandomJoinFailed()
-    {
+    void OnPhotonRandomJoinFailed() {
         Debug.Log("ルームの入室に失敗しました。");
 
         // ルームがないと入室に失敗するため、その時は自分で作る
         // 引数でルーム名を指定できる
-        PhotonNetwork.CreateRoom(ROOM_NAME);
+        CreateToJoinRoom(ROOM_NAME);
+    }
+
+    /// <summary>
+    /// ルームを作成
+    /// </summary>
+    /// <param name="_roomName">Room name.</param>
+    private void CreateToJoinRoom(string _roomName) {
+        RoomOptions roomOptions = new RoomOptions();
+        // オプション設定
+        {
+            // 最大参加人数を設定
+            roomOptions.MaxPlayers = 4;
+
+            // 入室を許可するかどうか
+            roomOptions.IsOpen = true;
+
+            // ロビーのルーム一覧リストにこのルームを表示させるかどうか
+            roomOptions.IsVisible = true;
+        }
+
+        // カスタムプロパティ設定
+        {
+            // 名前空間(ExitGames.Client.Photon)内のHashtableクラスのインスタンスを生成して
+            ExitGames.Client.Photon.Hashtable roomHash = new ExitGames.Client.Photon.Hashtable();
+
+            // 設定したいカスタムプロパティを、キーと値のセットでAdd
+            roomHash.Add("Time", 0);
+            roomHash.Add("MapCode", 1);
+            roomHash.Add("Mode", "Easy");
+
+            // ルームオプションにハッシュをセット
+            roomOptions.CustomRoomProperties = roomHash;
+        }
+
+        // 各種値の上書き＆追加
+        {
+            /*
+            if (PhotonNetwork.inRoom)
+            {
+                PhotonNetwork.room.Name = "newRoomName";        // ルーム名変更
+                PhotonNetwork.room.MaxPlayers = 10;             // 最大人数を変更
+                PhotonNetwork.room.IsOpen = false;              // 部屋を閉じる
+                PhotonNetwork.room.IsVisible = false;           // ロビーから見えなくする
+
+                // カスタムプロパティの追加
+                ExitGames.Client.Photon.Hashtable roomHash = new ExitGames.Client.Photon.Hashtable();
+                roomHash.Add("hoge", "ほげ");
+                PhotonNetwork.room.SetCustomProperties(roomHash);
+            }
+            */
+        }
+
+        // ルーム名、オプション、ロビーを指定
+        PhotonNetwork.CreateRoom(_roomName, roomOptions, null);
+
+        // ランダム作成の場合は以下
+        //PhotonNetwork.JoinRandomRoom();
     }
 }
